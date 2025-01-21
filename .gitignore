@@ -1,0 +1,8 @@
+# Environments
+.env
+
+# Logs
+NOTES.md
+
+# Old API Request
+resources/db/APIRequest.php
