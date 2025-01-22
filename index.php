@@ -62,7 +62,18 @@
           ORDENAR
           <i :class="sortOrder == '' ? 'bi bi-list text-white' : sortOrder == 'asc' ? 'bi bi-sort-alpha-down text-white' : 'bi bi-sort-alpha-up text-white'"></i>
         </button>
-        **Debe filtrar por DÍA y PREVENDOR y ENTREGADOR para poder ordenar**
+        **filtrar por DÍA y PREVENDOR y ENTREGADOR para poder ordenar**
+      </div>
+      <div class="col text-center">
+        <button class="btn btn-sm btn-primary mx-2" disabled>
+          <i class="me-2 bi bi-geo-alt"></i>
+          ORDENAR POR DISTANCIA</button>
+        <button class="btn btn-sm btn-danger mx-2" disabled>
+          <i class="me-2 bi bi-save"></i>
+          GRABAR SECUENCIA</button>
+        <button class="btn btn-sm btn-success mx-2" disabled>
+          <i class="me-2 bi bi-file-earmark-bar-graph"></i>
+          GRAFICAR</button>
       </div>
       <div class="col text-end mb-3 fw-bold">Registros: {{ filteredClients.length }}</div>
     </div>
@@ -75,7 +86,7 @@
         <table class="table table-striped table-bordered table-sm mb-0">
           <thead class="table" style="background-color:#0a58ca; color:white;">
             <tr class="py-0">
-              <th scope="col" :colspan="showAllColumns ? 8 : 6" class="text-center py-0">
+              <th scope="col" :colspan="showAllColumns ? 11 : 9" class="text-center py-0">
                 CLIENTES DE RUTAS DE PREVENTA
               </th>
               <th scope="col" colspan="6" class="text-center py-0">
@@ -93,6 +104,9 @@
               <th scope="col" class="text-center py-0">NOMBRE</th>
               <th scope="col" class="text-center py-0">NOM-COMERCIAL</th>
               <th scope="col" class="text-center py-0">RUTA</th>
+              <th scope="col" class="text-center py-0">HORA DE VISITA</th>
+              <th scope="col" class="text-center py-0">TIEMPO DE VISITA</th>
+              <th scope="col" class="text-center py-0">TIEMPO DE TRASLADO</th>
               <th scope="col" v-show="showAllColumns" class="text-center py-0">DIRECCION</th>
               <th scope="col" v-show="showAllColumns" class="text-center py-0">TELEFONO</th>
               <th scope="col" class="text-center py-0" style="width:5px;">
@@ -122,6 +136,9 @@
               <td>{{ i.NAME1 }}</td>
               <td>{{ i.NAME2 }}</td>
               <td class="text-center">{{ i.SORTL }}</td>
+              <td class="text-center"></td>
+              <td class="text-center"></td>
+              <td class="text-center"></td>
               <td v-show="showAllColumns">{{ i.STRAS }}</td>
               <td v-show="showAllColumns" class="text-center">{{ i.TELF1 }}</td>
               <td></td>
@@ -163,7 +180,7 @@
               </td>
             </tr>
             <tr>
-              <td :colspan="showAllColumns ? 8 : 6"
+              <td :colspan="showAllColumns ? 11 : 9"
               class="text-center py-0">TOTALES
               </td>
               <td class="text-center py-0">{{ totals.lu }}</td>
@@ -172,7 +189,6 @@
               <td class="text-center py-0">{{ totals.ju }}</td>
               <td class="text-center py-0">{{ totals.vi }}</td>
               <td class="text-center py-0">{{ totals.sa }}</td>
-
             </tr>
           </tbody>
         </table>
