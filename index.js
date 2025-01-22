@@ -284,6 +284,10 @@ var vue = new Vue({
       const field = 'ORDEN_'+day
       this.sortOrder = this.sortOrder == 'asc' ? 'desc' : 'asc'
 
+      if (!day || day == '' && !this.filters.virtualManager) {
+        return
+      }
+
       this.clients = this.clients.sort((a, b) => {
         if(this.sortOrder == 'asc'){
           return a[field] - b[field]

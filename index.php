@@ -111,7 +111,8 @@
           <tbody>
             <tr v-for="(i, n) in filteredClients">
               <td>
-                <select v-if="filters.day != '' && filters.virtualManager != ''" @change="setOrder(i, 'ORDEN_' + filters.day)"
+                <select v-if="filters.day != '' && filters.virtualManager != '' && formItinerary.rute != 'TODOS' && formItinerary.rute != ''"
+                @change="setOrder(i, 'ORDEN_' + filters.day)"
                 class="py-0 form-select form-select-sm" v-model="i['ORDEN_' + filters.day]">
                   <option value="0"></option>
                   <option v-for="v in filteredClients.length" :key="v">{{ v }}</option>
