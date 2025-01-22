@@ -58,12 +58,12 @@
         **filtrar por DÍA y PREVENDOR y ENTREGADOR para poder ordenar**
       </div>-->
       <div class="col">
-        <div class="input-group" style="width: 500px;">
+        <div class="input-group" style="width: 400px;">
           <!--<label class="input-group-text">FILTRAR:</label>-->
           <input v-model="filters.text" type="text" class="form-control" placeholder="Filtrar por: CODIGO/NOMBRE/NOM-COMERCIAL/RUTA">
         </div>
       </div>
-      <div class="col text-center">
+      <div class="col text-center" style="min-width: 700px;">
         <button class="btn btn-sm btn-primary mx-2" disabled>
           <i class="me-2 bi bi-geo-alt"></i>
           ORDENAR POR DISTANCIA</button>
