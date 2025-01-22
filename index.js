@@ -42,13 +42,9 @@ var vue = new Vue({
       })
 
       tempClients = tempClients.filter(client => {
-        return client.LU.includes(this.filters.virtualManager) || 
-        client.MA.includes(this.filters.virtualManager) || 
-        client.MI.includes(this.filters.virtualManager) || 
-        client.JU.includes(this.filters.virtualManager) || 
-        client.VI.includes(this.filters.virtualManager) || 
-        client.SA.includes(this.filters.virtualManager) 
+        return client.PREVENDEDOR.includes(this.filters.virtualManager)
       })
+
 
       if(this.filters.day != ''){
         tempClients = tempClients.filter(client => {
@@ -89,30 +85,7 @@ var vue = new Vue({
     },
     // Consulta la lista de clientes desde SAP
     getClients: function(){
-    /*
-      this.clients = []
-      const ruta = this.formItinerary.rute
 
-        this.loaders.list = true
-        var config = {
-          method: 'get',
-          url: `endpoint.php?pass=getClients&rute=${ruta}`,
-          headers: { }
-        };
-        axios(config)
-        .then(function (response) {
-          // console.log(response.data);
-          vue.loaders.list = false
-          // vue.clients = response.data
-          vue.getVirtualItinerary(response.data)
-        })
-        .catch(function (error) {
-          vue.loaders.list = false
-          console.log(error);
-        });
-      */
-
-       
        this.clients = []
        const ruta = this.formItinerary.rute
        let url = ''
@@ -137,7 +110,6 @@ var vue = new Vue({
          axios(config)
          .then(function (response) {
            vue.loaders.list = false
-           // vue.clients = response.data
            vue.getVirtualItinerary(response.data)
          })
          .catch(function (error) {
@@ -202,13 +174,16 @@ var vue = new Vue({
       clients.forEach(client => {
 
         const temp = itinerary ? itinerary?.find(virtual => virtual.CODIGO == client.KUNNR) : null
+
+        // Asignar prevendedor
+        client['PREVENDEDOR'] = temp && temp['PREVENDEDOR'] ? temp['PREVENDEDOR'] : ''
         
-        client['LU'] = temp && temp['LU'] ? temp['LU'] : ''
-        client['MA'] = temp && temp['MA'] ? temp['MA'] : ''
-        client['MI'] = temp && temp['MI'] ? temp['MI'] : ''
-        client['JU'] = temp && temp['JU'] ? temp['JU'] : ''
-        client['VI'] = temp && temp['VI'] ? temp['VI'] : ''
-        client['SA'] = temp && temp['SA'] ? temp['SA'] : ''
+        client['LU'] = temp && temp['LU'] ? parseInt(temp['LU']) : ''
+        client['MA'] = temp && temp['MA'] ? parseInt(temp['MA']) : ''
+        client['MI'] = temp && temp['MI'] ? parseInt(temp['MI']) : ''
+        client['JU'] = temp && temp['JU'] ? parseInt(temp['JU']) : ''
+        client['VI'] = temp && temp['VI'] ? parseInt(temp['VI']) : ''
+        client['SA'] = temp && temp['SA'] ? parseInt(temp['SA']) : ''
 
         client['ORDEN_LU'] = temp && temp['ORDEN_LU'] ? temp['ORDEN_LU'] : ''
         client['ORDEN_MA'] = temp && temp['ORDEN_MA'] ? temp['ORDEN_MA'] : ''
@@ -234,10 +209,10 @@ var vue = new Vue({
   
         axios(config)
         .then(function (response) {
-          // console.log(response.data);
+          console.log(response.data);
 
           if (response.data[0] && response.data[0].exito == 1) {
-            vue.showToastSwal('success')
+            //vue.showToastSwal('success')
           }else {
             vue.clearDay(day, code)
             vue.showToastSwal('error')

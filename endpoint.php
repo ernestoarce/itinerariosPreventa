@@ -23,8 +23,9 @@ if (isset($_GET) && $_GET['pass'] == 'getVirtualSellers') {
 } else if (isset($_GET) && $_GET['pass'] == 'setVirtualItinerary') {
 
     $code = $_GET['code'];
-    $seller = $_GET['virtualSeller'];
     $day = $_GET['day'];
+    $seller = $_GET['day'] == 'PREVENDEDOR' ? "'{$_GET['virtualSeller']}'" : $_GET['virtualSeller'];
+    $seller = ($seller == 'true') ? 1 : (($seller == 'false') ? 0 : $seller);
     $ruta = $_GET['ruta'];
 
     // Verificando si existe registro para el codigo
@@ -35,10 +36,10 @@ if (isset($_GET) && $_GET['pass'] == 'getVirtualSellers') {
     // Si existe registro, se actualiza
     $queryTransaction = array();
     if ($cant > 0) {
-        $query = "UPDATE HH.VENDEDORES_ITINERARIO_VIRTUAL SET {$day} = '{$seller}', RUTA = '{$ruta}' WHERE CODIGO = '{$code}'";
+        $query = "UPDATE HH.VENDEDORES_ITINERARIO_VIRTUAL SET {$day} = {$seller}, RUTA = '{$ruta}' WHERE CODIGO = '{$code}'";
         array_push($queryTransaction, $query);
     } else {
-        $query = "INSERT INTO HH.VENDEDORES_ITINERARIO_VIRTUAL (CODIGO, {$day}, RUTA) VALUES ('{$code}', '{$seller}', '{$ruta}')";
+        $query = "INSERT INTO HH.VENDEDORES_ITINERARIO_VIRTUAL (CODIGO, {$day}, RUTA) VALUES ('{$code}', {$seller}, '{$ruta}')";
         array_push($queryTransaction, $query);
     }
 
@@ -67,8 +68,7 @@ if (isset($_GET) && $_GET['pass'] == 'getVirtualSellers') {
     $itinerary = json_decode($ora->query($query), true);
     echo json_encode($itinerary);
 
-} else if (isset($_GET) && $_GET['pass'] == 'getClients') {
-    
+} else if (isset($_GET) && $_GET['pass'] == 'getClients') { 
     $rute = $_GET['rute'];
     $where = "";
     if ($rute != 'TODOS'){
