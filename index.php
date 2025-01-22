@@ -12,8 +12,8 @@
   <div id="content" v-cloak class="p-4">
     <div class="row mb-3">
 
-      <div class="col-2">
-        <div class="input-group">
+      <div class="col d-flex justify-content-end">
+        <div class="input-group" style="width: 300px;">
           <label class="input-group-text">ENTREGADOR:</label>
           <select class="form-select" v-model="formItinerary.rute" @change="getClients()">
             <option>TODOS</option>
@@ -22,15 +22,8 @@
         </div>
       </div>
 
-      <div class="col">
-        <div class="input-group">
-          <label class="input-group-text">FILTRAR:</label>
-          <input v-model="filters.text" type="text" class="form-control" placeholder="CODIGO/NOMBRE/NOM-COMERCIAL/RUTA">
-        </div>
-      </div>
-
-      <div class="col">
-        <div class="input-group">
+      <div class="col d-flex justify-content-center">
+        <div class="input-group" style="width: 400px;">
           <label class="input-group-text">PREVENDEDOR:</label>
           <select class="form-select" v-model="filters.virtualManager">
             <option selected></option>
@@ -39,8 +32,8 @@
         </div>
       </div>
 
-      <div class="col-2">
-        <div class="input-group">
+      <div class="col d-flex justify-content-start">
+        <div class="input-group" style="width: 300px;">
           <label class="input-group-text">DÍA:</label>
           <select class="form-select" v-model="filters.day">
             <option selected></option>
@@ -57,12 +50,18 @@
     </div>
 
     <div class="row">
-      <div class="col text-muted">
+      <!--<div class="col text-muted">
         <button class="btn btn-sm btn-primary" @click="orderClients()" :disabled="filters.day == '' || filters.virtualManager == '' || formItinerary.rute == 'TODOS' || formItinerary.rute == ''">
           ORDENAR
           <i :class="sortOrder == '' ? 'bi bi-list text-white' : sortOrder == 'asc' ? 'bi bi-sort-alpha-down text-white' : 'bi bi-sort-alpha-up text-white'"></i>
         </button>
         **filtrar por DÍA y PREVENDOR y ENTREGADOR para poder ordenar**
+      </div>-->
+      <div class="col">
+        <div class="input-group" style="width: 500px;">
+          <!--<label class="input-group-text">FILTRAR:</label>-->
+          <input v-model="filters.text" type="text" class="form-control" placeholder="Filtrar por: CODIGO/NOMBRE/NOM-COMERCIAL/RUTA">
+        </div>
       </div>
       <div class="col text-center">
         <button class="btn btn-sm btn-primary mx-2" disabled>
