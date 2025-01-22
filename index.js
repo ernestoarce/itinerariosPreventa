@@ -77,7 +77,7 @@ var vue = new Vue({
       .then(function (response) {
         console.log(response.data);
         vue.virtualSellers = response.data[0]
-        vue.sap_api = response.data[1]
+        vue.sap_api = vue.sap_api || response.data[1]
       }).catch(function (error) {
         console.log(error);
       });
