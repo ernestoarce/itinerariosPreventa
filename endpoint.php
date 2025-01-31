@@ -101,6 +101,11 @@ if (isset($_GET) && $_GET['pass'] == 'getVirtualSellers') {
 
     $result = json_decode($ora->insertaConTransaccionPorQuery($queryTransaction), true);
     print_r(json_encode($result));
+} else if (isset($_GET) && $_GET['pass'] == 'getAllItineraries') {
+
+    $query = "SELECT * FROM HH.VENDEDORES_ITINERARIO_VIRTUAL WHERE PREVENDEDOR LIKE 'TEL%'";
+    $itineraries = json_decode( $ora->query($query), true );
+    print_r(json_encode($itineraries));
 }
 
 ?>

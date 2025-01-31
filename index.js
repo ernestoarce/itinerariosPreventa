@@ -15,6 +15,7 @@ var vue = new Vue({
     },
     loaders: {
       list: false,
+      saveCRM: false,
     },
     totals: {
       lu: 0,
@@ -25,10 +26,20 @@ var vue = new Vue({
       sa: 0,
     },
     sortOrder: '',
-    sap_api: '',
+    sap_api: 'http://192.168.101.125:8080',
+    dragClient: {},
+    dropClient: {},
+    showGuardarEnCRM: false,
   },
   mounted() {
     this.getVirtualSellers();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const o = urlParams.get('o');
+    if (o==='crm') {
+      this.showGuardarEnCRM = true;
+    }
+
   },
   computed: {
     filteredClients() {
@@ -85,7 +96,11 @@ var vue = new Vue({
       if (ruta) {
         this.loaders.list = true;
         try {
-          const response = await axios.get(url);
+          const response = await axios.get('curl.php',{
+            params: {
+              url: url
+            }
+          });
           this.loaders.list = false;
           this.getVirtualItinerary(response.data);
         } catch (error) {
@@ -133,7 +148,11 @@ var vue = new Vue({
     },
     asignItineraries(clients, itinerary) {
       clients.forEach(client => {
-        const temp = itinerary?.find(virtual => virtual.CODIGO === client.KUNNR) || {};
+
+        let temp = {}
+        if (itinerary != ''){
+          temp = itinerary?.find(virtual => virtual.CODIGO === client.KUNNR) || {};
+        } 
 
         client.PREVENDEDOR = temp.PREVENDEDOR || '';
         client.LU = temp.LU ? parseInt(temp.LU) : '';
@@ -205,6 +224,93 @@ var vue = new Vue({
       this.clients.sort((a, b) => {
         return this.sortOrder === 'asc' ? a[field] - b[field] : b[field] - a[field];
       });
+    },
+    clearFilters() {
+      this.filters.text = '';
+      this.filters.virtualManager = '';
+      this.filters.day = '';
+    },
+    dragStart(event, client) {
+      event.dataTransfer.setData('client', JSON.stringify(client));
+      this.dragClient = client;
+    },
+    drop(event, client) {
+      event.preventDefault();
+      this.orderClients();
+      this.dropClient = client;
+
+      const day = this.filters.day;
+      const field = `ORDEN_${day}`;
+
+      const dragClientIndex = this.clients.findIndex(client => client.KUNNR === this.dragClient.KUNNR);
+      const dropClientIndex = this.clients.findIndex(client => client.KUNNR === this.dropClient.KUNNR);
+
+      // move the dragged client to the drop position
+      this.clients.splice(dropClientIndex, 0, this.clients.splice(dragClientIndex, 1)[0]);
+      
+      // update the order of all clients
+      this.updateOrderFilteredClients();
+      this.getClients();
+    },
+    updateOrderFilteredClients() {
+      const day = this.filters.day;
+      const field = `ORDEN_${day}`;
+
+      // Order all filtered clients from 1 to n
+      this.filteredClients.forEach((client, index) => {
+        client[field] = index + 1;
+      });
+
+      this.filteredClients.forEach(client => {
+        this.setOrder(client, field);
+      });
+    },
+    async getAllItineraries() {
+      try {
+        const response = await axios.get('endpoint.php?pass=getAllItineraries');
+        return response.data;
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
+    },
+    async guardarEnCRM() {
+
+      try {
+        this.loaders.saveCRM = true;
+        const allItineraries = await this.getAllItineraries();
+        //console.log(allItineraries);
+        
+        if (!allItineraries.length) {
+          swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontraron itinerarios para guardar en CRM',
+          });
+          return;
+        }
+        const response = await axios.get('postgres.php', {
+          params: {
+            endpoint: 'guardarEnCRM',
+            itineraries: allItineraries,
+          }
+        });
+        
+        //console.log(response.data);
+        
+        if (response.data.exito === 1) {
+          this.showToastSwal('success');
+        } else {
+          this.showToastSwal('error');
+        }
+        
+      } catch (error) {
+        console.error(error);
+        this.showToastSwal('error');
+      } finally {
+        this.loaders.saveCRM = false;
+      }
+      
     },
   },
 });

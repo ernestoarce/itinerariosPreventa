@@ -11,8 +11,8 @@
 <body>
   <div id="content" v-cloak class="container-fluid p-4">
     <div class="container mb-3">
-    <div class="row mb-3 justify-content-center" style="max-width: 1000px;">
-      <div class="col-md-4 mb-2">
+    <div class="row mb-3 justify-content-center">
+      <div class="col-md-3 mb-2">
         <div class="input-group">
           <label class="input-group-text">Entregador:</label>
           <select class="form-select" v-model="formItinerary.rute" @change="getClients">
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div class="col-md-4 mb-2">
+      <div class="col-md-3 mb-2">
         <div class="input-group">
           <label class="input-group-text">Prevendedor:</label>
           <select class="form-select" v-model="filters.virtualManager">
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div class="col-md-4 mb-2">
+      <div class="col-md-3 mb-2">
         <div class="input-group">
           <label class="input-group-text">Día:</label>
           <select class="form-select" v-model="filters.day">
@@ -46,6 +46,15 @@
           </select>
         </div>
       </div>
+
+      <div class="col-md-3 mb-2">
+        <button class="btn btn-primary float-end" @click="guardarEnCRM()" v-if="showGuardarEnCRM" :disabled="loaders.saveCRM">
+          <i class="bi bi-arrow-up" v-if="!loaders.saveCRM"></i>
+          <div class="spinner-border spinner-border-sm" role="status" v-if="loaders.saveCRM"></div>
+          Guardar en CRM
+        </button>
+      </div>
+
     </div>
 
     <div class="row">
@@ -80,10 +89,11 @@
         <table class="table table-striped table-sm mb-0 table-hover">
           <thead class="table text-white" style="background-color:rgb(9, 89, 175);">
             <tr>
-              <th scope="col" :colspan="showAllColumns ? 11 : 9" class="text-center">Clientes de rutas de preventa</th>
+              <th scope="col" :colspan="showAllColumns ? 12 : 10" class="text-center">Clientes de rutas de preventa</th>
               <th scope="col" colspan="7" class="text-center">Días y ruta virtual que le atenderá</th>
             </tr>
             <tr>
+              <th scope="col" class="text-center"></th>
               <th scope="col" class="text-center">
                 Orden
                 <button class="btn btn-sm p-0" @click="orderClients">
@@ -115,6 +125,10 @@
           </thead>
           <tbody>
             <tr v-for="(i, n) in filteredClients" :key="i.KUNNR">
+              <!--<td class="text-center" draggable="true" @dragstart="dragStart($event, i)" @dragover.prevent @drop="drop($event, i)" style="cursor: pointer;">
+                <i class="bi bi-grip-vertical" v-if="filters.day && filters.virtualManager && formItinerary.rute !== 'TODOS' && formItinerary.rute"></i>
+              </td>-->
+              <td></td>
               <td>
                 <select v-if="filters.day && filters.virtualManager && formItinerary.rute !== 'TODOS' && formItinerary.rute"
                 @change="setOrder(i, 'ORDEN_' + filters.day)"
@@ -159,7 +173,7 @@
               </td>
             </tr>
             <tr v-if="filteredClients.length > 0">
-              <td :colspan="showAllColumns ? 12 : 10" class="text-center py-0">TOTALES</td>
+              <td :colspan="showAllColumns ? 13 : 11" class="text-center py-0">TOTALES</td>
               <td class="text-center py-0">{{ totals.lu }}</td>
               <td class="text-center py-0">{{ totals.ma }}</td>
               <td class="text-center py-0">{{ totals.mi }}</td>
