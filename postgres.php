@@ -40,9 +40,22 @@ if (isset($_GET) && isset($_GET['endpoint']) && $_GET['endpoint'] == 'guardarEnC
         'SA' => 'next saturday'
     ];
 
+    // if today is a weekday, then use today instead of next weekday
+    $today = date('D');
+    $daysOfWeekMap = [
+        'Mon' => 'LU',
+        'Tue' => 'MA',
+        'Wed' => 'MI',
+        'Thu' => 'JU',
+        'Fri' => 'VI',
+        'Sat' => 'SA'
+    ];
+
+    if (array_key_exists($today, $daysOfWeekMap)) {
+        $daysOfWeek[$daysOfWeekMap[$today]] = 'today';
+    }
+
     // Insert all itineraries using a single query, and update if already exists
-    $query = "MERGE INTO \"visitas-posicion\" AS target
-              USING (VALUES ";
     $values = [];
     foreach ($itineraries as $itinerary) {
         $itinerary = json_decode($itinerary, true);
@@ -52,30 +65,37 @@ if (isset($_GET) && isset($_GET['endpoint']) && $_GET['endpoint'] == 'guardarEnC
         foreach ($daysOfWeek as $day => $nextDay) {
             if ($itinerary[$day] == '1') {
                 $date = date('Y-m-d', strtotime($nextDay));
-                $kunnr = $itinerary['CODIGO'];
-                $route = $itinerary['RUTA'];
-                $vroute = $itinerary['PREVENDEDOR'];
-                $orden = $itinerary['ORDEN_' . $day];
+                $kunnr = pg_escape_string($itinerary['CODIGO']);
+                $route = pg_escape_string($itinerary['RUTA']);
+                $vroute = pg_escape_string($itinerary['PREVENDEDOR']);
+                $orden = pg_escape_string($itinerary['ORDEN_' . $day]);
                 $values[] = "('$kunnr', '$route', '$date', '$vctext', '$vroute', '$orden')";
             }
         }
     }
-    $query .= implode(', ', $values) . ") AS source (kunnr, route, exdat1, vctext, vroute, sequ)
-              ON target.kunnr = source.kunnr AND target.exdat1 = Date(source.exdat1) AND target.route = source.route
-              WHEN MATCHED THEN
-                UPDATE SET vctext = source.vctext, vroute = source.vroute, sequ = source.sequ
-              WHEN NOT MATCHED THEN
-                INSERT (kunnr, route, exdat1, vctext, vroute, sequ)
-                VALUES (source.kunnr, source.route, Date(source.exdat1), source.vctext, source.vroute, source.sequ);";
-    
-    //echo $query;
-    //die();
 
-    $result = pg_query($conexion, $query);
-    if ($result) {
-        echo json_encode(array('exito' => 1));
+    if (!empty($values)) {
+        $query = "MERGE INTO \"visitas-posicion\" AS target
+                  USING (VALUES " . implode(', ', $values) . ") AS source (kunnr, route, exdat1, vctext, vroute, sequ)
+                  ON target.kunnr = source.kunnr AND target.exdat1 = Date(source.exdat1) AND target.route = source.route
+                  WHEN MATCHED THEN
+                    UPDATE SET vctext = source.vctext, vroute = source.vroute, sequ = source.sequ
+                  WHEN NOT MATCHED THEN
+                    INSERT (kunnr, route, exdat1, vctext, vroute, sequ)
+                    VALUES (source.kunnr, source.route, Date(source.exdat1), source.vctext, source.vroute, source.sequ);";
+
+        $result = pg_query($conexion, $query);
+        
+        //print_r($query);
+        //die();
+
+        if ($result) {
+            echo json_encode(array('exito' => 1));
+        } else {
+            echo json_encode(array('exito' => 0));
+        }
     } else {
-        echo json_encode(array('exito' => 0));
+        echo json_encode(array('exito' => 0, 'mensaje' => 'No itineraries to process.'));
     }
 
 } else {
