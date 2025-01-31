@@ -3,6 +3,7 @@ var vue = new Vue({
   data: {
     showAllColumns: false,
     virtualSellers: [],
+    deliverer: [],
     clients: [],
     filters: {
       text: '',
@@ -29,7 +30,7 @@ var vue = new Vue({
     sap_api: 'http://192.168.101.125:8080',
     dragClient: {},
     dropClient: {},
-    showGuardarEnCRM: false,
+    forCRM: false,
   },
   mounted() {
     this.getVirtualSellers();
@@ -37,7 +38,7 @@ var vue = new Vue({
     const urlParams = new URLSearchParams(window.location.search);
     const o = urlParams.get('o');
     if (o==='crm') {
-      this.showGuardarEnCRM = true;
+      this.forCRM = true;
     }
 
   },
@@ -76,6 +77,14 @@ var vue = new Vue({
       try {
         const response = await axios.get('endpoint.php?pass=getVirtualSellers');
         this.virtualSellers = response.data[0];
+        this.deliverer = response.data[0];
+
+        if (this.forCRM) {
+          this.virtualSellers = this.virtualSellers.filter(seller => seller.ID.startsWith('TEL'));
+        } else {
+          this.virtualSellers = this.virtualSellers.filter(seller => !seller.ID.startsWith('TEL'));
+        }
+
         this.sap_api = this.sap_api || response.data[1];
       } catch (error) {
         console.error(error);

@@ -17,7 +17,7 @@
           <label class="input-group-text">Entregador:</label>
           <select class="form-select" v-model="formItinerary.rute" @change="getClients">
             <option>TODOS</option>
-            <option v-for="v in virtualSellers" :key="v.TOUR_ID">{{ v.TOUR_ID }}</option>
+            <option v-for="v in deliverer" :key="v.TOUR_ID">{{ v.TOUR_ID }}</option>
           </select>
         </div>
       </div>
@@ -48,7 +48,7 @@
       </div>
 
       <div class="col-md-3 mb-2">
-        <button class="btn btn-primary float-end" @click="guardarEnCRM()" v-if="showGuardarEnCRM" :disabled="loaders.saveCRM">
+        <button class="btn btn-primary float-end" @click="guardarEnCRM()" v-if="forCRM" :disabled="loaders.saveCRM">
           <i class="bi bi-arrow-up" v-if="!loaders.saveCRM"></i>
           <div class="spinner-border spinner-border-sm" role="status" v-if="loaders.saveCRM"></div>
           Guardar en CRM
