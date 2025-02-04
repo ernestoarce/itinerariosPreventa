@@ -106,6 +106,12 @@ if (isset($_GET) && $_GET['pass'] == 'getVirtualSellers') {
     $query = "SELECT * FROM HH.VENDEDORES_ITINERARIO_VIRTUAL WHERE PREVENDEDOR LIKE 'TEL%'";
     $itineraries = json_decode( $ora->query($query), true );
     print_r(json_encode($itineraries));
+
+} else if (isset($_GET) && $_GET['pass'] == 'getClientsKunnr') {
+
+    $query = "SELECT DISTINCT CODIGO FROM HH.VENDEDORES_ITINERARIO_VIRTUAL WHERE PREVENDEDOR LIKE 'TEL%'";
+    $clients = json_decode( $ora->query($query), true );
+    print_r(json_encode($clients));
 }
 
 ?>

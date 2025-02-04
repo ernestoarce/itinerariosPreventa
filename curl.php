@@ -23,5 +23,5 @@ if (isset($_GET) && isset($_GET['url'])) {
     echo $response;
 
 } else {
-    echo "Error: No se ha especificado un ID.";
+    print_r($_GET);
 }
