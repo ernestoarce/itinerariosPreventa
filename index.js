@@ -1,6 +1,7 @@
 var vue = new Vue({
   el: '#content',
   data: {
+    urlAPI: 'https://calidad-api-sap-crm.yes.com.sv',
     showAllColumns: false,
     virtualSellers: [],
     deliverer: [],
@@ -17,6 +18,7 @@ var vue = new Vue({
     loaders: {
       list: false,
       saveCRM: false,
+      getClients: false,
     },
     totals: {
       lu: 0,
@@ -31,8 +33,13 @@ var vue = new Vue({
     dragClient: {},
     dropClient: {},
     forCRM: false,
+    selectorBusquedaSAP: '',
+    buscarCliente: '',
+    rutaSeleccionada: '',
+    loadingSAPClientes: false,
+    clientesTemporales: [],
   },
-  mounted() {
+  async mounted() {
     this.getVirtualSellers();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,6 +48,7 @@ var vue = new Vue({
       this.forCRM = true;
     }
 
+    await this.getClients();
   },
   computed: {
     filteredClients() {
@@ -53,6 +61,10 @@ var vue = new Vue({
           client?.LZONE?.toLowerCase().includes(text)
         );
       });
+
+      if (!this.forCRM && this.formItinerary.rute && this.formItinerary.rute !== 'TODOS') {
+        tempClients = tempClients.filter(client => client.SORTL === this.formItinerary.rute);
+      }
 
       if (this.filters.virtualManager) {
         tempClients = tempClients.filter(client => client.PREVENDEDOR.includes(this.filters.virtualManager));
@@ -79,6 +91,9 @@ var vue = new Vue({
         this.virtualSellers = response.data[0];
         this.deliverer = response.data[0];
 
+        // ORDER delieverer By TOUR_ID
+        this.deliverer.sort((a, b) => (a.TOUR_ID > b.TOUR_ID) ? 1 : -1);
+
         if (this.forCRM) {
           this.virtualSellers = this.virtualSellers.filter(seller => seller.ID.startsWith('TEL'));
         } else {
@@ -94,29 +109,62 @@ var vue = new Vue({
       this.clients = [];
       const ruta = this.formItinerary.rute;
       const api = this.sap_api;
-      let url = '';
 
-      if (ruta === 'TODOS') {
-        url = `${api}/tablefs?table=KNA1&where=SORTL%20LIKE%20%27DET%%27OR%20SORTL%20LIKE%20%27DSM%%27&fields=KUNNR,NAME1,NAME2,SORTL,LZONE,STRAS,TELF1`;
-      } else {
-        url = `${api}/tablefs?table=KNA1&where=SORTL%20=%20%27${ruta}%27&fields=KUNNR,NAME1,NAME2,SORTL,LZONE,STRAS,TELF1`;
-      }
+      let itineraries = [];
+      try {
+        this.loaders.getClients = true;
+        itineraries = await this.getAllItineraries() || [];
+        //console.log(itineraries);
 
-      if (ruta) {
-        this.loaders.list = true;
-        try {
-          const response = await axios.get('curl.php',{
-            params: {
-              url: url
-            }
+        if (itineraries.length === 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontraron itinerarios',
           });
-          this.loaders.list = false;
-          this.getVirtualItinerary(response.data);
-        } catch (error) {
-          this.loaders.list = false;
-          console.error(error);
+          return;
         }
+
+        // get CODIGO from all itineraries
+        let codes = itineraries.map(itinerary => itinerary.CODIGO);
+        codes = [...new Set(codes)];
+        //console.log(codes);
+
+        // get all clients from API
+        const response = await axios.post(this.urlAPI + '/datos-clientes/', {
+          Clientes: codes
+        });
+
+        // merge clients with itineraries
+        let clients = response.data;
+
+        clients.forEach(client => {
+          let temp = itineraries.find(virtual => virtual.CODIGO === client.KUNNR) || {};
+          client.PREVENDEDOR = temp.PREVENDEDOR || '';
+          client.LU = temp.LU ? parseInt(temp.LU) : '';
+          client.MA = temp.MA ? parseInt(temp.MA) : '';
+          client.MI = temp.MI ? parseInt(temp.MI) : '';
+          client.JU = temp.JU ? parseInt(temp.JU) : '';
+          client.VI = temp.VI ? parseInt(temp.VI) : '';
+          client.SA = temp.SA ? parseInt(temp.SA) : '';
+
+          client.ORDEN_LU = temp.ORDEN_LU || '';
+          client.ORDEN_MA = temp.ORDEN_MA || '';
+          client.ORDEN_MI = temp.ORDEN_MI || '';
+          client.ORDEN_JU = temp.ORDEN_JU || '';
+          client.ORDEN_VI = temp.ORDEN_VI || '';
+          client.ORDEN_SA = temp.ORDEN_SA || '';
+        }
+        );
+
+        this.clients = clients;
+
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.loaders.getClients = false;
       }
+      
     },
     async getVirtualItinerary(clients) {
       const ruta = this.formItinerary.rute;
@@ -181,8 +229,9 @@ var vue = new Vue({
 
       this.clients = clients;
     },
-    async setVirtualItinerary(day, code, value) {
-      const ruta = this.formItinerary.rute;
+    async setVirtualItinerary(day, code, value, ruta) {
+      //const ruta = this.formItinerary.rute;
+      
       if (day && code && ruta) {
         try {
           const response = await axios.get(`endpoint.php?pass=setVirtualItinerary&day=${day}&code=${code}&virtualSeller=${value}&ruta=${ruta}`);
@@ -239,6 +288,10 @@ var vue = new Vue({
       this.filters.virtualManager = '';
       this.filters.day = '';
     },
+    // recieves an array of objects and a key, and returns an array of unique values
+    getUniqueValues(array, key) {
+      return [...new Set(array.map(item => item[key]))];
+    },
     dragStart(event, client) {
       event.dataTransfer.setData('client', JSON.stringify(client));
       this.dragClient = client;
@@ -276,7 +329,8 @@ var vue = new Vue({
     },
     async getAllItineraries() {
       try {
-        const response = await axios.get('endpoint.php?pass=getAllItineraries');
+        const forCRMBool = this.forCRM ? 1 : 0;
+        const response = await axios.get('endpoint.php?pass=getAllItineraries&forCRM=' + forCRMBool);
         return response.data;
       } catch (error) {
         console.error(error);
@@ -318,6 +372,123 @@ var vue = new Vue({
         this.showToastSwal('error');
       } finally {
         this.loaders.saveCRM = false;
+      }
+      
+    },
+    debouncedSearch() {
+        clearTimeout(this.debounceTimeout);
+        this.clientesTemporales = [];
+        this.loadingSAPClientes = true;
+        if (this.buscarCliente == '') {
+            this.loadingSAPClientes = false;
+            return;
+        }
+        this.debounceTimeout = setTimeout(() => {
+            this.fetchResults();
+        }, 2000); // 5000 ms = 5 segundos
+    },
+    fetchResults() {
+        switch (this.selectorBusquedaSAP) {
+            case 'NOMBRE':
+                let buscarClienteUpper = this.buscarCliente.toUpperCase();
+                const url = this.sap_api + `/tablefs?table=KNA1&where=name1%20like%27%${buscarClienteUpper}%%27%20or%20name2%20like%20%27%${buscarClienteUpper}%%27%20&fields=KUNNR,NAME1,NAME2,SORTL,STRAS`;
+                //console.log(url);
+                axios.get('curl.php', { params: { url: url } })
+                    .then(res => {
+                        
+                        //this.motivos = this.jclear(res.data);
+                        this.clientesTemporales = res.data;
+                        this.clientesTemporales = this.clientesTemporales.slice(0, 20);
+                        this.loadingSAPClientes = false;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        this.loadingSAPClientes = false;
+                    });
+                break;
+            case 'CODIGO':
+                axios.post(this.urlAPI + '/datos-clientes/', {
+                        "Clientes": [
+                            this.buscarCliente
+                        ]
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        this.clientesTemporales = this.jclear(res.data);
+                        this.loadingSAPClientes = false;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        this.loadingSAPClientes = false;
+                    });
+                break;
+            case 'RUTA':
+                axios.post('/api/getdatossapruta', {
+                        "nombre_cliente": this.buscarCliente,
+                        "ruta": this.rutaSeleccionada,
+                    }, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(res => {
+                        this.clientesTemporales = res.data;
+                        this.loadingSAPClientes = false;
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        this.loadingSAPClientes = false;
+                    });
+                break;
+
+
+            default:
+                break;
+        }
+
+    },
+    jclear(d) {
+      return JSON.parse(JSON.stringify(d));
+    },
+    predetalle(result) {
+      let existeCliente = this.clients.find(r => r.KUNNR == result.KUNNR)
+      if (!existeCliente) {
+
+          // Add days and order to result
+          result.PREVENDEDOR = '';
+          result.LU = '';
+          result.MA = '';
+          result.MI = '';
+          result.JU = '';
+          result.VI = '';
+          result.SA = '';
+          result.ORDEN_LU = '';
+          result.ORDEN_MA = '';
+          result.ORDEN_MI = '';
+          result.ORDEN_JU = '';
+          result.ORDEN_VI = '';
+          result.ORDEN_SA = '';
+
+          if (this.filters.virtualManager){
+            result.PREVENDEDOR = this.filters.virtualManager;
+          }
+
+          if (this.filters.day){
+            result[this.filters.day] = 1;
+          }
+
+          this.clients.push(result);
+          
+          if (this.filters.day){
+            this.setVirtualItinerary('PREVENDEDOR', result.KUNNR, this.filters.virtualManager, result.SORTL);
+            this.setVirtualItinerary(this.filters.day, result.KUNNR, 1, result.SORTL);
+          } else {
+            this.setVirtualItinerary('PREVENDEDOR', result.KUNNR, this.filters.virtualManager, result.SORTL);
+          }
+          
       }
       
     },
