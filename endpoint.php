@@ -103,7 +103,11 @@ if (isset($_GET) && $_GET['pass'] == 'getVirtualSellers') {
     print_r(json_encode($result));
 } else if (isset($_GET) && $_GET['pass'] == 'getAllItineraries') {
 
-    $query = "SELECT * FROM HH.VENDEDORES_ITINERARIO_VIRTUAL WHERE PREVENDEDOR LIKE 'TEL%'";
+    $forCRM = $_GET['forCRM'] == 1 ? true : false;
+    $likeParam = $forCRM ? "LIKE 'TEL%'" : "NOT LIKE 'TEL%'";
+    //print_r(array($forCRM, $likeParam));
+    //die();
+    $query = "SELECT * FROM HH.VENDEDORES_ITINERARIO_VIRTUAL WHERE PREVENDEDOR {$likeParam}";
     $itineraries = json_decode( $ora->query($query), true );
     print_r(json_encode($itineraries));
 

@@ -13,22 +13,20 @@
     <div class="container mb-3">
 
     <div class="row mb-3 justify-content-center">
-
-      <!--
-      <div class="col-md-3 mb-2">
-        <div class="input-group">
-          <label class="input-group-text">Entregador:</label>
-          <select class="form-select" v-model="formItinerary.rute" @change="getClients">
-            <option>TODOS</option>
-            <option v-for="v in deliverer" :key="v.TOUR_ID">{{ v.TOUR_ID }}</option>
-          </select>
-        </div>
-      </div>
-      -->
-
+      
       <div class="col-md-3">
         <div class="input-group">
           <input v-model="filters.text" type="text" class="form-control" placeholder="Filtrar por: Código/Nombre/Nom-Comercial/Ruta">
+        </div>
+      </div>
+
+      <div class="col-md-3 mb-2" v-if="!forCRM">
+        <div class="input-group">
+          <label class="input-group-text">Entregador:</label>
+          <select class="form-select" v-model="formItinerary.rute">
+            <option>TODOS</option>
+            <option v-for="v in deliverer" :key="v.TOUR_ID">{{ v.TOUR_ID }}</option>
+          </select>
         </div>
       </div>
 

@@ -49,7 +49,6 @@ var vue = new Vue({
     }
 
     await this.getClients();
-
   },
   computed: {
     filteredClients() {
@@ -62,6 +61,10 @@ var vue = new Vue({
           client?.LZONE?.toLowerCase().includes(text)
         );
       });
+
+      if (!this.forCRM && this.formItinerary.rute && this.formItinerary.rute !== 'TODOS') {
+        tempClients = tempClients.filter(client => client.SORTL === this.formItinerary.rute);
+      }
 
       if (this.filters.virtualManager) {
         tempClients = tempClients.filter(client => client.PREVENDEDOR.includes(this.filters.virtualManager));
@@ -110,7 +113,17 @@ var vue = new Vue({
       let itineraries = [];
       try {
         this.loaders.getClients = true;
-        itineraries = await this.getAllItineraries();
+        itineraries = await this.getAllItineraries() || [];
+        //console.log(itineraries);
+
+        if (itineraries.length === 0) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se encontraron itinerarios',
+          });
+          return;
+        }
 
         // get CODIGO from all itineraries
         let codes = itineraries.map(itinerary => itinerary.CODIGO);
@@ -316,7 +329,8 @@ var vue = new Vue({
     },
     async getAllItineraries() {
       try {
-        const response = await axios.get('endpoint.php?pass=getAllItineraries');
+        const forCRMBool = this.forCRM ? 1 : 0;
+        const response = await axios.get('endpoint.php?pass=getAllItineraries&forCRM=' + forCRMBool);
         return response.data;
       } catch (error) {
         console.error(error);
