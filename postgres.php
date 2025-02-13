@@ -131,4 +131,7 @@ if (isset($_GET) && isset($_GET['endpoint']) && $_GET['endpoint'] == 'guardarEnC
     echo "Error: No se ha especificado un ID.";
 }
 
+// Cerrar la conexión a la base de datos
+pg_close($conexion);
+
 ?>
