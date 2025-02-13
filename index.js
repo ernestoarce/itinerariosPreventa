@@ -91,30 +91,41 @@ var vue = new Vue({
   methods: {
     setClientDetails(kunnr, field, value) {
 
-      if (this.currentField != field || this.currentKunnr != kunnr) {
-        this.updateClientDetails(kunnr, field, value);
-      }
+      //if (this.currentField && this.currentKunnr && (this.currentField != field || this.currentKunnr != kunnr)) {
+      //if (this.currentField != field || this.currentKunnr != kunnr) {
+      //  this.updateClientDetails(kunnr, field, value);
+      //}
 
+      this.updateClientDetails(kunnr, field, value);
       this.currentField = field;
       this.currentKunnr = kunnr;
       
-      clearTimeout(this.debounceTimeout);
-      this.debounceTimeout = setTimeout(() => {
-        this.updateClientDetails(kunnr, field, value);
-      }, 1000);
+      //clearTimeout(this.debounceTimeout);
+      //this.debounceTimeout = setTimeout(() => {
+      //  this.updateClientDetails(kunnr, field, value);
+      //}, 2000);
     },
     async updateClientDetails(kunnr, field, value) {
       try {
         const response = await axios.get(`postgres.php?endpoint=updateClientDetails&kunnr=${kunnr}&field=${field}&value=${value}`);
         console.log(response.data);
         if (response.data.exito === 1) {
-          this.showToastSwal('success');
+          //this.showToastSwal('success');
+          this.changeFieldColorTemporal(kunnr, field, 'notifgreen');
         } else {
-          this.showToastSwal('error');
+          //this.showToastSwal('error');
+          this.changeFieldColorTemporal(kunnr, field, 'notifred');
         }
       } catch (error) {
+        this.changeFieldColorTemporal(kunnr, field, 'notifred');
         console.error(error);
       }
+    },
+    changeFieldColorTemporal(kunnr, field, className){
+      document.getElementById(kunnr + '_' + field).classList.add(className);
+      setTimeout(() => {
+        document.getElementById(kunnr + '_' + field).classList.remove(className);
+      }, 3000);
     },
     async getVirtualSellers() {
       try {

@@ -211,25 +211,32 @@
               <td class="text-center"></td>
               -->
               <td v-show="showAllColumns">
-                <input type="text" class="form-control form-control-sm" v-model="i.CONT1" @input="setClientDetails(i.KUNNR, 'contacto1', i.CONT1)"/>
+                <input :id="i.KUNNR + '_contacto1'"
+                type="text" class="form-control form-control-sm" v-model="i.CONT1" @change="setClientDetails(i.KUNNR, 'contacto1', i.CONT1)"/>
               </td>
               <td v-show="showAllColumns">
-                <input type="text" class="form-control form-control-sm" v-model="i.TELF1" @input="setClientDetails(i.KUNNR, 'telefono1', i.TELF1)"/>
+                <input :id="i.KUNNR + '_telefono1'"
+                type="text" class="form-control form-control-sm" v-model="i.TELF1" @change="setClientDetails(i.KUNNR, 'telefono1', i.TELF1)"/>
               </td>
               <td v-show="showAllColumns">
-                <input type="text" class="form-control form-control-sm" v-model="i.CONT2" @input="setClientDetails(i.KUNNR, 'contacto2', i.CONT2)"/>
+                <input :id="i.KUNNR + '_contacto2'"
+                type="text" class="form-control form-control-sm" v-model="i.CONT2" @change="setClientDetails(i.KUNNR, 'contacto2', i.CONT2)"/>
               </td>
               <td v-show="showAllColumns">
-                <input type="text" class="form-control form-control-sm" v-model="i.TELF2" @input="setClientDetails(i.KUNNR, 'telefono2', i.TELF2)"/>
+                <input :id="i.KUNNR + '_telefono2'"
+                type="text" class="form-control form-control-sm" v-model="i.TELF2" @change="setClientDetails(i.KUNNR, 'telefono2', i.TELF2)"/>
               </td>
               <td v-show="showAllColumns">
-                <input type="text" class="form-control form-control-sm" v-model="i.TELF3" @input="setClientDetails(i.KUNNR, 'telefono3', i.TELF3)"/>
+                <input :id="i.KUNNR + '_telefono3'"
+                type="text" class="form-control form-control-sm" v-model="i.TELF3" @change="setClientDetails(i.KUNNR, 'telefono3', i.TELF3)"/>
               </td>
               <td v-show="showAllColumns">
-                <input type="text" class="form-control form-control-sm" v-model="i.D_VISITA" @input="setClientDetails(i.KUNNR, 'd_visita', i.D_VISITA)"/>
+                <input :id="i.KUNNR + '_d_visita'"
+                type="text" class="form-control form-control-sm" v-model="i.D_VISITA" @change="setClientDetails(i.KUNNR, 'd_visita', i.D_VISITA)"/>
               </td>
               <td v-show="showAllColumns">
-                <textarea class="form-control form-control-sm" v-model="i.COMENTARIOS" @input="setClientDetails(i.KUNNR, 'comentario', i.COMENTARIOS)"></textarea>
+                <textarea :id="i.KUNNR + '_comentario'"
+                class="form-control form-control-sm" v-model="i.COMENTARIOS" @change="setClientDetails(i.KUNNR, 'comentario', i.COMENTARIOS)"></textarea>
               </td>
               
               <td></td>
@@ -293,3 +300,14 @@
   <script src="resources/bootstrap.min.js"></script>
 </body>
 </html>
+
+<style>
+  .notifgreen{
+    color: white;
+    background-color: rgba(23, 187, 23, 0.54);
+  }
+  .notifred{
+    color: white;
+    background-color: rgba(212, 21, 21, 0.51);
+  }
+</style>
