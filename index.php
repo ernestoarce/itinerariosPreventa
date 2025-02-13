@@ -173,9 +173,9 @@
                 <th scope="col" v-show="showAllColumns" class="text-center" style="width: 200px;"
                 >Comentario</th>
 
-              <th scope="col" class="text-center">
-                <button class="btn btn-sm p-0" @click="showAllColumns = !showAllColumns">
-                  <i :class="showAllColumns ? 'bi bi-caret-left-fill text-white' : 'bi bi-caret-right-fill text-white'"></i>
+              <th scope="col" class="text-center blicking">
+                <button class="btn btn-sm p-0 blicking" @click="showAllColumns = !showAllColumns">
+                  <i class="blicking" :class="showAllColumns ? 'bi bi-caret-left-fill text-white' : 'bi bi-caret-right-fill text-white'"></i>
                 </button>
               </th>
               <th scope="col" class="text-center">Prevendedor</th>
@@ -309,5 +309,15 @@
   .notifred{
     color: white;
     background-color: rgba(212, 21, 21, 0.51);
+  }
+  
+  .blicking {
+    animation: blinker 1s linear infinite;
+  }
+
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
   }
 </style>
