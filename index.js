@@ -38,6 +38,10 @@ var vue = new Vue({
     rutaSeleccionada: '',
     loadingSAPClientes: false,
     clientesTemporales: [],
+
+    debounceTimeout: null,
+    currentField: '',
+    currentKunnr: '',
   },
   async mounted() {
     this.getVirtualSellers();
@@ -85,6 +89,33 @@ var vue = new Vue({
     },
   },
   methods: {
+    setClientDetails(kunnr, field, value) {
+
+      if (this.currentField != field || this.currentKunnr != kunnr) {
+        this.updateClientDetails(kunnr, field, value);
+      }
+
+      this.currentField = field;
+      this.currentKunnr = kunnr;
+      
+      clearTimeout(this.debounceTimeout);
+      this.debounceTimeout = setTimeout(() => {
+        this.updateClientDetails(kunnr, field, value);
+      }, 1000);
+    },
+    async updateClientDetails(kunnr, field, value) {
+      try {
+        const response = await axios.get(`postgres.php?endpoint=updateClientDetails&kunnr=${kunnr}&field=${field}&value=${value}`);
+        console.log(response.data);
+        if (response.data.exito === 1) {
+          this.showToastSwal('success');
+        } else {
+          this.showToastSwal('error');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async getVirtualSellers() {
       try {
         const response = await axios.get('endpoint.php?pass=getVirtualSellers');

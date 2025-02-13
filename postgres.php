@@ -98,6 +98,35 @@ if (isset($_GET) && isset($_GET['endpoint']) && $_GET['endpoint'] == 'guardarEnC
         echo json_encode(array('exito' => 0, 'mensaje' => 'No itineraries to process.'));
     }
 
+} else if (isset($_GET) && isset($_GET['endpoint']) && $_GET['endpoint'] == 'updateClientDetails') {
+    
+    if (isset($_GET['kunnr']) && isset($_GET['field']) && isset($_GET['value'])) {
+        $kunnr = pg_escape_string($_GET['kunnr']);
+        $field = pg_escape_string($_GET['field']);
+        $value = pg_escape_string($_GET['value']);
+
+        //$query = "UPDATE param_clientes SET {$field} = '{$value}' WHERE id_cliente = '{$kunnr}'";
+        $query = "MERGE INTO param_clientes AS target
+                  USING (VALUES ('$kunnr', '$value')) AS source (kunnr, value)
+                  ON target.id_cliente = source.kunnr
+                  WHEN MATCHED THEN
+                    UPDATE SET $field = source.value
+                  WHEN NOT MATCHED THEN
+                    INSERT (id_cliente, $field)
+                    VALUES (source.kunnr, source.value);";
+        $result = pg_query($conexion, $query);
+
+        if ($result) {
+            echo json_encode(array('exito' => 1));
+        } else {
+            $error_msg = pg_last_error($conexion);
+            error_log($error_msg);
+            echo json_encode(array('exito' => 0, 'mensaje' => $error_msg));
+        }
+    } else {
+        echo json_encode(array('exito' => 0, 'mensaje' => 'Parámetros insuficientes.'));
+    }
+
 } else {
     echo "Error: No se ha especificado un ID.";
 }

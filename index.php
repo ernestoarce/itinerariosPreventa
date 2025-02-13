@@ -144,7 +144,7 @@
         <table class="table table-striped table-sm mb-0 table-hover">
           <thead class="table text-white" style="background-color:rgb(9, 89, 175);">
             <tr>
-              <th scope="col" :colspan="showAllColumns ? 12 : 10" class="text-center">Clientes de rutas de preventa</th>
+              <th scope="col" :colspan="showAllColumns ? 14 : 8" class="text-center">Clientes de rutas de preventa</th>
               <th scope="col" colspan="7" class="text-center">Días y ruta virtual que le atenderá</th>
             </tr>
             <tr>
@@ -159,11 +159,20 @@
               <th scope="col" class="text-center">Nombre</th>
                 <th scope="col" class="text-center">Nom-Comercial</th>
                 <th scope="col" class="text-center">Ruta</th>
+                <!--
                 <th scope="col" class="text-center">Hora de Visita</th>
                 <th scope="col" class="text-center">Tiempo de Visita</th>
                 <th scope="col" class="text-center">Tiempo de Traslado</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Direccion</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Telefono</th>
+                -->
+                <th scope="col" v-show="showAllColumns" class="text-center">Con 1</th>
+                <th scope="col" v-show="showAllColumns" class="text-center">Tel 1</th>
+                <th scope="col" v-show="showAllColumns" class="text-center">Con 2</th>
+                <th scope="col" v-show="showAllColumns" class="text-center">Tel 2</th>
+                <th scope="col" v-show="showAllColumns" class="text-center">Tel 3</th>
+                <th scope="col" v-show="showAllColumns" class="text-center">Dia Visita</th>
+                <th scope="col" v-show="showAllColumns" class="text-center" style="width: 200px;"
+                >Comentario</th>
+
               <th scope="col" class="text-center">
                 <button class="btn btn-sm p-0" @click="showAllColumns = !showAllColumns">
                   <i :class="showAllColumns ? 'bi bi-caret-left-fill text-white' : 'bi bi-caret-right-fill text-white'"></i>
@@ -196,11 +205,33 @@
               <td>{{ i.NAME1 }}</td>
               <td>{{ i.NAME2 }}</td>
               <td class="text-center">{{ i.SORTL }}</td>
+              <!--
               <td class="text-center"></td>
               <td class="text-center"></td>
               <td class="text-center"></td>
-              <td v-show="showAllColumns">{{ i.STRAS }}</td>
-              <td v-show="showAllColumns" class="text-center">{{ i.TELF1 }}</td>
+              -->
+              <td v-show="showAllColumns">
+                <input type="text" class="form-control form-control-sm" v-model="i.CONT1" @input="setClientDetails(i.KUNNR, 'contacto1', i.CONT1)"/>
+              </td>
+              <td v-show="showAllColumns">
+                <input type="text" class="form-control form-control-sm" v-model="i.TELF1" @input="setClientDetails(i.KUNNR, 'telefono1', i.TELF1)"/>
+              </td>
+              <td v-show="showAllColumns">
+                <input type="text" class="form-control form-control-sm" v-model="i.CONT2" @input="setClientDetails(i.KUNNR, 'contacto2', i.CONT2)"/>
+              </td>
+              <td v-show="showAllColumns">
+                <input type="text" class="form-control form-control-sm" v-model="i.TELF2" @input="setClientDetails(i.KUNNR, 'telefono2', i.TELF2)"/>
+              </td>
+              <td v-show="showAllColumns">
+                <input type="text" class="form-control form-control-sm" v-model="i.TELF3" @input="setClientDetails(i.KUNNR, 'telefono3', i.TELF3)"/>
+              </td>
+              <td v-show="showAllColumns">
+                <input type="text" class="form-control form-control-sm" v-model="i.D_VISITA" @input="setClientDetails(i.KUNNR, 'd_visita', i.D_VISITA)"/>
+              </td>
+              <td v-show="showAllColumns">
+                <textarea class="form-control form-control-sm" v-model="i.COMENTARIOS" @input="setClientDetails(i.KUNNR, 'comentario', i.COMENTARIOS)"></textarea>
+              </td>
+              
               <td></td>
               <td class="text-center">
                 <select class="py-0 form-select form-select-sm" v-model="i.PREVENDEDOR" @change="setVirtualItinerary('PREVENDEDOR', i.KUNNR, i.PREVENDEDOR, i.SORTL)">
@@ -228,7 +259,7 @@
               </td>
             </tr>
             <tr v-if="filteredClients.length > 0">
-              <td :colspan="showAllColumns ? 13 : 11" class="text-center py-0">TOTALES</td>
+              <td :colspan="showAllColumns ? 15 : 8" class="text-center py-0">TOTALES</td>
               <td class="text-center py-0">{{ totals.lu }}</td>
               <td class="text-center py-0">{{ totals.ma }}</td>
               <td class="text-center py-0">{{ totals.mi }}</td>
