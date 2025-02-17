@@ -1,7 +1,7 @@
 var vue = new Vue({
   el: '#content',
   data: {
-    urlAPI: 'https://calidad-api-sap-crm.yes.com.sv',
+    urlAPI: 'https://api-sap-crm.yes.com.sv',
     showAllColumns: false,
     virtualSellers: [],
     deliverer: [],
