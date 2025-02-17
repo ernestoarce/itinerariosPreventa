@@ -6,7 +6,7 @@ services:
       context: .
       args:
         php_version: 192.168.101.160:5000/php-oracle
-    container_name: itinerario-sv-php
+    container_name: itinerario
     ports:
       - "8013:80"
     volumes:

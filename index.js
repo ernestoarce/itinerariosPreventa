@@ -272,6 +272,7 @@ var vue = new Vue({
       this.clients = clients;
     },
     async setVirtualItinerary(day, code, value, ruta) {
+      console.log(`day: ${day}, code: ${code}, value: ${value}, ruta: ${ruta}`);
       //const ruta = this.formItinerary.rute;
       
       if (day && code && ruta) {
@@ -286,6 +287,13 @@ var vue = new Vue({
         } catch (error) {
           console.error(error);
         }
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Debe seleccionar un día y un prevendedor y un entregador'
+        });
+        this.clearDay(day, code);
       }
     },
     clearDay(day, code) {
@@ -432,6 +440,7 @@ var vue = new Vue({
     fetchResults() {
         switch (this.selectorBusquedaSAP) {
             case 'NOMBRE':
+              /*
                 let buscarClienteUpper = this.buscarCliente.toUpperCase();
                 const url = this.sap_api + `/tablefs?table=KNA1&where=name1%20like%27%${buscarClienteUpper}%%27%20or%20name2%20like%20%27%${buscarClienteUpper}%%27%20&fields=KUNNR,NAME1,NAME2,SORTL,STRAS`;
                 //console.log(url);
@@ -447,6 +456,24 @@ var vue = new Vue({
                         console.error(err);
                         this.loadingSAPClientes = false;
                     });
+                break;
+                */
+                axios.post(this.urlAPI + '/datos-clientesbynombre/', {
+                    "nombre_cliente": this.buscarCliente,
+                    "ruta": ""
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => {
+                    this.clientesTemporales = this.jclear(res.data);
+                    this.loadingSAPClientes = false;
+                })
+                .catch(err => {
+                    console.error(err);
+                    this.loadingSAPClientes = false;
+                });
                 break;
             case 'CODIGO':
                 axios.post(this.urlAPI + '/datos-clientes/', {
