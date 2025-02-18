@@ -144,7 +144,8 @@
         <table class="table table-striped table-sm mb-0 table-hover">
           <thead class="table text-white" style="background-color:rgb(9, 89, 175);">
             <tr>
-              <th scope="col" :colspan="showAllColumns ? 14 : 8" class="text-center">Clientes de rutas de preventa</th>
+              <th scope="col" v-if="!forCRM" :colspan="showAllColumns ? 11 : 8" class="text-center">Clientes de rutas de preventa</th>
+              <th scope="col" v-if="forCRM" :colspan="showAllColumns ? 14 : 8" class="text-center">Clientes de rutas de preventa</th>
               <th scope="col" colspan="7" class="text-center">Días y ruta virtual que le atenderá</th>
             </tr>
             <tr>
@@ -159,18 +160,18 @@
               <th scope="col" class="text-center">Nombre</th>
                 <th scope="col" class="text-center">Nom-Comercial</th>
                 <th scope="col" class="text-center">Ruta</th>
-                <!--
-                <th scope="col" class="text-center">Hora de Visita</th>
-                <th scope="col" class="text-center">Tiempo de Visita</th>
-                <th scope="col" class="text-center">Tiempo de Traslado</th>
-                -->
-                <th scope="col" v-show="showAllColumns" class="text-center">Con 1</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Tel 1</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Con 2</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Tel 2</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Tel 3</th>
-                <th scope="col" v-show="showAllColumns" class="text-center">Dia Visita</th>
-                <th scope="col" v-show="showAllColumns" class="text-center" style="width: 200px;"
+                
+                <th scope="col" v-show="showAllColumns && !forCRM" class="text-center">Hora de Visita</th>
+                <th scope="col" v-show="showAllColumns && !forCRM" class="text-center">Tiempo de Visita</th>
+                <th scope="col" v-show="showAllColumns && !forCRM" class="text-center">Tiempo de Traslado</th>
+                
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center">Con 1</th>
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center">Tel 1</th>
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center">Con 2</th>
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center">Tel 2</th>
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center">Tel 3</th>
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center">Dia Visita</th>
+                <th scope="col" v-show="showAllColumns && forCRM" class="text-center" style="width: 200px;"
                 >Comentario</th>
 
               <th scope="col" class="text-center blicking">
@@ -205,36 +206,36 @@
               <td>{{ i.NAME1 }}</td>
               <td>{{ i.NAME2 }}</td>
               <td class="text-center">{{ i.SORTL }}</td>
-              <!--
-              <td class="text-center"></td>
-              <td class="text-center"></td>
-              <td class="text-center"></td>
-              -->
-              <td v-show="showAllColumns">
+              
+              <td v-show="showAllColumns && !forCRM" class="text-center"></td>
+              <td v-show="showAllColumns && !forCRM" class="text-center"></td>
+              <td v-show="showAllColumns && !forCRM" class="text-center"></td>
+              
+              <td v-show="showAllColumns && forCRM">
                 <input :id="i.KUNNR + '_contacto1'"
                 type="text" class="form-control form-control-sm" v-model="i.CONT1" @change="setClientDetails(i.KUNNR, 'contacto1', i.CONT1)"/>
               </td>
-              <td v-show="showAllColumns">
+              <td v-show="showAllColumns && forCRM">
                 <input :id="i.KUNNR + '_telefono1'"
                 type="text" class="form-control form-control-sm" v-model="i.TELF1" @change="setClientDetails(i.KUNNR, 'telefono1', i.TELF1)"/>
               </td>
-              <td v-show="showAllColumns">
+              <td v-show="showAllColumns && forCRM">
                 <input :id="i.KUNNR + '_contacto2'"
                 type="text" class="form-control form-control-sm" v-model="i.CONT2" @change="setClientDetails(i.KUNNR, 'contacto2', i.CONT2)"/>
               </td>
-              <td v-show="showAllColumns">
+              <td v-show="showAllColumns && forCRM">
                 <input :id="i.KUNNR + '_telefono2'"
                 type="text" class="form-control form-control-sm" v-model="i.TELF2" @change="setClientDetails(i.KUNNR, 'telefono2', i.TELF2)"/>
               </td>
-              <td v-show="showAllColumns">
+              <td v-show="showAllColumns && forCRM">
                 <input :id="i.KUNNR + '_telefono3'"
                 type="text" class="form-control form-control-sm" v-model="i.TELF3" @change="setClientDetails(i.KUNNR, 'telefono3', i.TELF3)"/>
               </td>
-              <td v-show="showAllColumns">
+              <td v-show="showAllColumns && forCRM">
                 <input :id="i.KUNNR + '_d_visita'"
                 type="text" class="form-control form-control-sm" v-model="i.D_VISITA" @change="setClientDetails(i.KUNNR, 'd_visita', i.D_VISITA)"/>
               </td>
-              <td v-show="showAllColumns">
+              <td v-show="showAllColumns && forCRM">
                 <textarea :id="i.KUNNR + '_comentario'"
                 class="form-control form-control-sm" v-model="i.COMENTARIOS" @change="setClientDetails(i.KUNNR, 'comentario', i.COMENTARIOS)"></textarea>
               </td>
@@ -266,7 +267,8 @@
               </td>
             </tr>
             <tr v-if="filteredClients.length > 0">
-              <td :colspan="showAllColumns ? 15 : 8" class="text-center py-0">TOTALES</td>
+              <td v-if="!forCRM" :colspan="showAllColumns ? 11 : 8" class="text-center py-0">TOTALES</td>
+              <td v-if="forCRM" :colspan="showAllColumns ? 15 : 8" class="text-center py-0">TOTALES</td>
               <td class="text-center py-0">{{ totals.lu }}</td>
               <td class="text-center py-0">{{ totals.ma }}</td>
               <td class="text-center py-0">{{ totals.mi }}</td>
